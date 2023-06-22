@@ -12,7 +12,7 @@ use serenity::utils::Colour;
 use crate::ShardManagerContainer;
 
 #[command]
-#[allowed_roles("ring0")]
+#[allowed_roles("Bot master")]
 async fn quit(ctx: &Context, msg: &Message) -> CommandResult {
     let data = ctx.data.read().await;
 
@@ -28,7 +28,7 @@ async fn quit(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
-#[allowed_roles("ring0")]
+#[allowed_roles("Bot master")]
 async fn new(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     if let Some(ctf) = args.single::<String>().ok() {
         if let Some(guild_id) = msg.guild_id {
