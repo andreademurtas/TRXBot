@@ -14,7 +14,7 @@ use serenity::model::gateway::Ready;
 use serenity::prelude::*;
 use tracing::{error, info};
 
-use crate::commands::ring0::*;
+use crate::commands::botmaster::*;
 use crate::commands::help::*;
 use crate::commands::gg::*;
 
