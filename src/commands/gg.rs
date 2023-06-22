@@ -9,7 +9,7 @@ async fn gg(ctx: &Context, msg: &Message) -> CommandResult {
     let red_flag = "🚩";
     let name = channel_id.name(&ctx).await.unwrap();
     channel_id.edit(&ctx.http, |c| {
-        c.name(format!("{} {}", red_flag, name))
+        c.name(format!("{}{}", red_flag, name))
     }).await?;
     Ok(())
 }
