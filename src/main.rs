@@ -16,6 +16,7 @@ use tracing::{error, info};
 
 use crate::commands::owner::*;
 use crate::commands::help::*;
+use crate::commands::gg::*;
 
 pub struct ShardManagerContainer;
 
@@ -39,7 +40,7 @@ impl EventHandler for Handler {
 }
 
 #[group]
-#[commands(quit,help,new)]
+#[commands(quit,help,new,gg)]
 struct General;
 
 #[tokio::main]
