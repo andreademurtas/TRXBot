@@ -1,15 +1,19 @@
-use serenity::framework::standard::macros::command;
-use serenity::framework::standard::CommandResult;
-use serenity::model::prelude::*;
-use serenity::prelude::*;
+use crate::{Context, Error};
 
-#[command]
-async fn help(ctx: &Context, msg: &Message) -> CommandResult {
-    let help: &str = "These are the commands you can use:
-
-    `/help` - display this help message
-    `/gg` - mark challenge as solved
-    ";
-    msg.channel_id.say(&ctx.http, help).await?;
+#[poise::command(track_edits, slash_command)]
+pub async fn help(ctx: Context<'_>,
+    #[description = "Specific command to show help about"]
+    #[autocomplete = "poise::builtins::autocomplete_command"]
+    command: Option<String>
+    ) -> Result<(), Error> {
+    poise::builtins::help
+        (ctx,
+         command.as_deref(),
+         poise::builtins::HelpConfiguration {
+            extra_text_at_bottom: "This is an example bot made to showcase features of my custom Discord bot framework",
+            ..Default::default()
+         }
+    )
+    .await?;
     Ok(())
 }

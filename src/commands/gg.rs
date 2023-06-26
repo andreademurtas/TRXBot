@@ -1,18 +1,22 @@
-use serenity::framework::standard::macros::command;
-use serenity::framework::standard::CommandResult;
-use serenity::model::prelude::*;
-use serenity::prelude::*;
+use crate::{Context, Error};
 
-#[command]
-async fn gg(ctx: &Context, msg: &Message) -> CommandResult {
-    let channel_id = msg.channel_id;
+#[poise::command(slash_command)]
+pub async fn gg(ctx: Context<'_>) -> Result<(), Error> {
     let red_flag = "🚩";
-    let name = channel_id.name(&ctx).await.unwrap();
+    let name = ctx.channel_id().name(&ctx).await.unwrap();
     if name.contains(red_flag) {
+        ctx.send(|c|{
+            c.content("You don't solve a challenge twice, do you?")
+                .reply(true)
+            }).await?;
         return Ok(());
     }
-    channel_id.edit(&ctx.http, |c| {
+    ctx.channel_id().edit(&ctx, |c| {
         c.name(format!("{}{}", red_flag, name))
     }).await?;
+    ctx.send(|c|{
+        c.content("gg")
+            .reply(true)
+        }).await?;
     Ok(())
 }

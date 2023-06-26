@@ -1,95 +1,74 @@
+#![warn(clippy::str_to_string)]
+
 mod commands;
 
-use std::env;
-use std::collections::HashSet;
-use std::sync::Arc;
-
-use serenity::async_trait;
-use serenity::client::bridge::gateway::ShardManager;
-use serenity::framework::standard::macros::group;
-use serenity::framework::StandardFramework;
-use serenity::http::Http;
-use serenity::model::event::ResumedEvent;
-use serenity::model::gateway::Ready;
-use serenity::prelude::*;
-use tracing::{error, info};
-
-use crate::commands::botmaster::*;
+use poise::serenity_prelude as serenity;
+use std::{collections::HashMap, env, sync::Mutex, time::Duration};
+use log::{debug, error, log_enabled, info, Level};
+use dotenv::dotenv;
 use crate::commands::help::*;
 use crate::commands::gg::*;
+use crate::commands::botmaster::*;
+use crate::commands::ctftime::*;
 
-pub struct ShardManagerContainer;
+type Error = Box<dyn std::error::Error + Send + Sync>;
+type Context<'a> = poise::Context<'a, Data, Error>;
 
-impl TypeMapKey for ShardManagerContainer {
-    type Value = Arc<Mutex<ShardManager>>;
+pub struct Data {
 }
 
-struct Handler;
-
-#[async_trait]
-impl EventHandler for Handler {
-    
-    async fn ready(&self, _: Context, ready: Ready) {
-        println!("{} is connected!", ready.user.name);
+async fn on_error(error: poise::FrameworkError<'_, Data, Error>) {
+    match error {
+        poise::FrameworkError::Setup { error, .. } => panic!("Failed to start bot: {:?}", error),
+        poise::FrameworkError::Command { error, ctx } => {
+            println!("Error in command `{}`: {:?}", ctx.command().name, error,);
+        }
+        error => {
+            if let Err(e) = poise::builtins::on_error(error).await {
+                println!("Error while handling error: {}", e)
+            }
+        }
     }
-
-    async fn resume(&self, _: Context, _: ResumedEvent) {
-        info!("Resumed");
-    }
-
 }
-
-#[group]
-#[commands(quit,help,new,gg)]
-struct General;
 
 #[tokio::main]
 async fn main() {
-    dotenv::dotenv().expect("Failed to load .env file");
-    tracing_subscriber::fmt::init();
+    env_logger::init();
+    dotenv().ok();
 
-    let token = env::var("DISCORD_TOKEN").expect("Expected a token in the environment");
-
-    let http = Http::new(&token);
-
-    let (owners, _bot_id) = match http.get_current_application_info().await {
-        Ok(info) => {
-            let mut owners = HashSet::new();
-            owners.insert(info.owner.id);
-
-            (owners, info.id)
+    let options = poise::FrameworkOptions {
+        commands: vec![help(), gg(), shutdown(), new(), ctftime()],
+        prefix_options: poise::PrefixFrameworkOptions {
+            prefix: Some("!".into()),
+            edit_tracker: Some(poise::EditTracker::for_timespan(Duration::from_secs(3600))),
+            additional_prefixes: vec![
+                poise::Prefix::Literal("hey bot"),
+                poise::Prefix::Literal("hey bot,"),
+            ],
+            ..Default::default()
         },
-        Err(why) => panic!("Could not access application info: {:?}", why),
+        on_error: |error| Box::pin(on_error(error)),
+        ..Default::default()
     };
 
-    let framework = StandardFramework::new()
-        .configure(|c| c
-            .owners(owners)
-            .prefix("/")
+    poise::Framework::builder()
+        .token(
+            env::var("DISCORD_TOKEN")
+                .expect("Missing `DISCORD_TOKEN` env var, see README for more information."),
         )
-        .group(&GENERAL_GROUP);
-
-    let intents = GatewayIntents::all();
-
-    let mut client = Client::builder(&token, intents)
-        .framework(framework)
-        .event_handler(Handler)
+        .setup(move |ctx, _ready, framework| {
+            Box::pin(async move {
+                println!("Logged in as {}", _ready.user.name);
+                poise::builtins::register_globally(ctx, &framework.options().commands).await?;
+                Ok(Data {
+                })
+            })
+        })
+        .options(options)
+        .intents(
+            serenity::GatewayIntents::non_privileged() | serenity::GatewayIntents::all(),
+        )
+        .run()
         .await
-        .expect("Err creating client");
-
-    {
-        let mut data = client.data.write().await;
-        data.insert::<ShardManagerContainer>(client.shard_manager.clone());
-    }
-
-    let shard_manager = client.shard_manager.clone();
-
-    tokio::spawn(async move {
-       tokio::signal::ctrl_c().await.expect("Failed to install CTRL+C signal handler"); 
-       shard_manager.lock().await.shutdown_all().await;
-    });
-
-    if let Err(why) = client.start().await {
-        println!("Client error: {:?}", why);
-    }
+        .unwrap();
 }
