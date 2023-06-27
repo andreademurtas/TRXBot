@@ -1,21 +1,25 @@
 #![warn(clippy::str_to_string)]
 
 mod commands;
+mod db;
 
 use poise::serenity_prelude as serenity;
 use std::{collections::HashMap, env, sync::Mutex, time::Duration};
 use log::{debug, error, log_enabled, info, Level};
 use dotenv::dotenv;
+
 use crate::commands::help::*;
 use crate::commands::gg::*;
 use crate::commands::botmaster::*;
 use crate::commands::ctftime::*;
+use crate::db::db::*;
 
 type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::Context<'a, Data, Error>;
 
-pub struct Data {
-}
+pub struct Data {}
+
+
 
 async fn on_error(error: poise::FrameworkError<'_, Data, Error>) {
     match error {
@@ -35,16 +39,13 @@ async fn on_error(error: poise::FrameworkError<'_, Data, Error>) {
 async fn main() {
     env_logger::init();
     dotenv().ok();
+    create_ctfs_table();
 
     let options = poise::FrameworkOptions {
         commands: vec![help(), gg(), shutdown(), new(), ctftime()],
         prefix_options: poise::PrefixFrameworkOptions {
             prefix: Some("!".into()),
             edit_tracker: Some(poise::EditTracker::for_timespan(Duration::from_secs(3600))),
-            additional_prefixes: vec![
-                poise::Prefix::Literal("hey bot"),
-                poise::Prefix::Literal("hey bot,"),
-            ],
             ..Default::default()
         },
         on_error: |error| Box::pin(on_error(error)),
