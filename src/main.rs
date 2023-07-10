@@ -12,6 +12,7 @@ use crate::commands::gg::*;
 use crate::commands::botmaster::*;
 use crate::commands::ctftime::*;
 use crate::commands::factordb::*;
+use crate::commands::tle::*;
 
 type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::Context<'a, Data, Error>;
@@ -40,7 +41,7 @@ async fn main() {
     dotenv().ok();
 
     let options = poise::FrameworkOptions {
-        commands: vec![help(), gg(), shutdown(), new(), ctftime(), factordb()],
+        commands: vec![help(), gg(), shutdown(), new(), ctftime(), factordb(), moonlighter()],
         prefix_options: poise::PrefixFrameworkOptions {
             prefix: Some("!".into()),
             edit_tracker: Some(poise::EditTracker::for_timespan(Duration::from_secs(3600))),
