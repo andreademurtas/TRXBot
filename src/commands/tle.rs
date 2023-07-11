@@ -42,7 +42,7 @@ pub async fn moonlighter(ctx: Context<'_>) -> Result<(), Error> {
         file: &file
     }; 
     ctx.send(|c| {
-        c.content(format!("Moonlighter is currently at lat: `{}`, lon: `{}` and alt: `{}`",
+        c.content(format!("Moonlighter is currently at lat: `{}`, lon: `{}` and alt: `{} km`",
                           sat_pos.latitude * satellite::constants::RAD_TO_DEG,
                           sat_pos.longitude * satellite::constants::RAD_TO_DEG,
                           sat_pos.height * satellite::constants::KM_TO_MI
