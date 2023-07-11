@@ -36,7 +36,7 @@ pub async fn moonlighter(ctx: Context<'_>) -> Result<(), Error> {
     map.add_tool(circle);
     map.save_png(format!("{}.png", id))?;
     }
-    let file = File::open("map.png").await?;
+    let file = File::open(format!("{}.png", id)).await?;
     let attachement = AttachmentType::File {
         filename: "map.png".into(),
         file: &file
@@ -49,6 +49,6 @@ pub async fn moonlighter(ctx: Context<'_>) -> Result<(), Error> {
         ))
         .attachment(attachement)
     }).await?;
-    tokio::fs::remove_file(format!("{}.png", id)).await?;
+    remove_file(format!("{}.png", id)).await?;
     Ok(())
 }
