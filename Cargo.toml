@@ -18,3 +18,5 @@ chrono = "0.4.26"
 rusqlite = { version = "0.29.0", features = ["bundled"] }
 factordb = { version = "0.2.0", features = ["blocking"] }
 satellite = { git = "https://github.com/richinfante/satellite-rs.git", branch = "master" }
+staticmap = "0.4.1"
+uuid = { version = "1.4.0", features = ["v4", "fast-rng"] }
