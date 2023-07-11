@@ -25,6 +25,7 @@ pub async fn moonlighter(ctx: Context<'_>) -> Result<(), Error> {
         .width(300)
         .height(400)
         .padding((10, 0))
+        .zoom(1)
         .build()?;
     let red = Color::new(true, 255, 0, 0, 255);
     let circle = CircleBuilder::default()
