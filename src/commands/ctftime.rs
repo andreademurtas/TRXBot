@@ -12,7 +12,7 @@ pub async fn trx(ctx: Context<'_>) -> Result<(), Error> {
         .await?
         .text()
         .await?;
-    let json: serde_json::Value = serde_json::from_str(&resp)?; 
+    let json: serde_json::Value = serde_json::from_str(&resp)?;
     let year = chrono::Utc::now().year();
     let rating_place = &json["rating"][&year.to_string().as_str()]["rating_place"];
     let organizer_points = &json["rating"][&year.to_string().as_str()]["organizer_points"];
@@ -25,9 +25,6 @@ pub async fn trx(ctx: Context<'_>) -> Result<(), Error> {
         rating_points,
         country_place
     );
-    ctx.send(|c|{
-        c.content(message)
-            .reply(true)
-        }).await?;
+    ctx.send(|c| c.content(message).reply(true)).await?;
     Ok(())
 }
