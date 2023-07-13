@@ -6,6 +6,12 @@ use dotenv::dotenv;
 use log::{debug, error, info, log_enabled, Level};
 use poise::serenity_prelude as serenity;
 use std::{collections::HashMap, env, sync::Mutex, time::Duration};
+use serenity::async_trait;
+use serenity::EventHandler;
+use serenity::GuildChannel;
+use serenity::model::channel::{PermissionOverwrite, PermissionOverwriteType};
+use serenity::model::Permissions;
+use serenity::model::prelude::RoleId;
 
 use crate::commands::botmaster::*;
 use crate::commands::ctftime::*;
@@ -16,6 +22,34 @@ use crate::commands::tle::*;
 
 type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::Context<'a, Data, Error>;
+
+struct Handler;
+
+#[async_trait]
+impl EventHandler for Handler {
+    async fn channel_create(&self, ctx: serenity::Context, channel: &GuildChannel) {
+        let roles = channel.guild_id.roles(&ctx).await.unwrap();
+        let category = channel.parent_id.unwrap();
+        for (id, role) in roles {
+            if role.name == category.name(&ctx).await.unwrap() {
+                 let everyone_permission = PermissionOverwrite {
+                    allow: Permissions::empty(),
+                    deny: Permissions::all(),
+                    kind: PermissionOverwriteType::Role(RoleId::from(channel.guild_id.0)),
+                };
+
+                let role_permission = PermissionOverwrite {
+                    allow: Permissions::all(),
+                    deny: Permissions::empty(),
+                    kind: PermissionOverwriteType::Role(role.id),
+                }; 
+
+                channel.create_permission(&ctx, &everyone_permission).await.unwrap();
+                channel.create_permission(&ctx, &role_permission).await.unwrap();
+            }
+        }
+    }
+}
 
 pub struct Data {}
 
@@ -71,6 +105,10 @@ async fn main() {
         })
         .options(options)
         .intents(serenity::GatewayIntents::non_privileged() | serenity::GatewayIntents::all())
+        .client_settings(|client| {
+            client
+                .event_handler(poise::serenity_prelude::Handler)
+        })
         .run()
         .await
         .unwrap();
