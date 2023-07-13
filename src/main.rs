@@ -30,6 +30,7 @@ impl EventHandler for Handler {
     async fn channel_create(&self, ctx: serenity::Context, channel: &GuildChannel) {
         let roles = channel.guild_id.roles(&ctx).await.unwrap();
         let category = channel.parent_id.unwrap();
+        println!("category: {:?}", category);
         for (id, role) in roles {
             if role.name == category.name(&ctx).await.unwrap() {
                  let everyone_permission = PermissionOverwrite {
