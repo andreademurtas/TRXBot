@@ -31,6 +31,7 @@ impl EventHandler for Handler {
         let roles = channel.guild_id.roles(&ctx).await.unwrap();
         let category = channel.parent_id.unwrap();
         println!("category: {:?}", category);
+        println!("channel: {:?}", category.name(&ctx).await);
         for (id, role) in roles {
             if role.name == category.name(&ctx).await.unwrap() {
                  let everyone_permission = PermissionOverwrite {
