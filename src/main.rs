@@ -107,7 +107,7 @@ async fn main() {
         .intents(serenity::GatewayIntents::non_privileged() | serenity::GatewayIntents::all())
         .client_settings(|client| {
             client
-                .event_handler(poise::serenity_prelude::Handler)
+                .event_handler(Handler)
         })
         .run()
         .await
