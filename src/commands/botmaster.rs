@@ -86,6 +86,10 @@ pub async fn new(
         .create_permission(&ctx, &everyone_permission)
         .await?;
     general.create_permission(&ctx, &role_permission).await?;
+    category
+        .create_permission(&ctx, &everyone_permission)
+        .await?;
+    category.create_permission(&ctx, &role_permission).await?;
     general_public
         .id
         .send_message(&ctx, |m| {
