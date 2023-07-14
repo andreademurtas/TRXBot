@@ -77,7 +77,7 @@ async fn main() {
                         println!("category: {:?}", category_ch);
                         println!("channel: {:?}", category_name);
                         for (_id, role) in roles {
-                            if role.name == category_name {
+                            if role.name == category_name && channel.name != "general-public"{
                                 let everyone_permission = PermissionOverwrite {
                                     allow: Permissions::empty(),
                                     deny: Permissions::all(),
