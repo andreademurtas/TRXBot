@@ -5,9 +5,9 @@ mod commands;
 use dotenv::dotenv;
 use poise::serenity_prelude as serenity;
 use serenity::model::channel::{PermissionOverwrite, PermissionOverwriteType};
+use serenity::model::prelude::Channel;
 use serenity::model::prelude::RoleId;
 use serenity::model::Permissions;
-use serenity::model::prelude::Channel;
 use serenity::ArgumentConvert;
 use std::{env, time::Duration};
 
@@ -65,14 +65,14 @@ async fn main() {
                         let roles = channel.guild_id.roles(&ctx).await.unwrap();
                         let category_ch = channel.parent_id.unwrap();
                         let category_ca = Channel::convert(
-                                ctx,
-                                Some(channel.guild_id),
-                                Some(category_ch),
-                                &category_ch.0.to_string()
-                            )
-                            .await?
-                            .category()
-                            .unwrap();
+                            ctx,
+                            Some(channel.guild_id),
+                            Some(category_ch),
+                            &category_ch.0.to_string(),
+                        )
+                        .await?
+                        .category()
+                        .unwrap();
                         let category_name = category_ca.name;
                         println!("category: {:?}", category_ch);
                         println!("channel: {:?}", category_name);

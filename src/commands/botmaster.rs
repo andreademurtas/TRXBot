@@ -47,8 +47,7 @@ pub async fn new(
         role = guild_id
             .create_role(&ctx, |r| r.name(&ctf).colour(rgb.0 as u64))
             .await?;
-    }
-    else {
+    } else {
         role = roles
             .iter()
             .find(|(_, role)| role.name == ctf)
