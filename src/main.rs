@@ -63,18 +63,21 @@ async fn main() {
                 match event {
                     poise::Event::ChannelCreate { channel } => {
                         let roles = channel.guild_id.roles(&ctx).await.unwrap();
-                        let category = channel.parent_id.unwrap();
-                        let category_name = Channel::convert(
+                        let category_ch = channel.parent_id.unwrap();
+                        let category_ca = Channel::convert(
                                 ctx,
                                 Some(channel.guild_id),
-                                Some(category),
-                                &category.0.to_string()
+                                Some(category_ch),
+                                &category_ch.0.to_string()
                             )
-                            .await?;
-                        println!("category: {:?}", category);
+                            .await?
+                            .category()
+                            .unwrap();
+                        let category_name = category_ca.name;
+                        println!("category: {:?}", category_ch);
                         println!("channel: {:?}", category_name);
                         for (_id, role) in roles {
-                            if role.name == "test" {
+                            if role.name == category_name {
                                 let everyone_permission = PermissionOverwrite {
                                     allow: Permissions::empty(),
                                     deny: Permissions::all(),
