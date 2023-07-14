@@ -41,9 +41,21 @@ pub async fn new(
         rand::random::<u8>(),
         rand::random::<u8>(),
     );
-    let role = guild_id
-        .create_role(&ctx, |r| r.name(&ctf).colour(rgb.0 as u64))
-        .await?;
+    let roles = guild_id.roles(&ctx).await?;
+    let role;
+    if !roles.iter().any(|(_, role)| role.name == ctf) {
+        role = guild_id
+            .create_role(&ctx, |r| r.name(&ctf).colour(rgb.0 as u64))
+            .await?;
+    }
+    else {
+        role = roles
+            .iter()
+            .find(|(_, role)| role.name == ctf)
+            .unwrap()
+            .1
+            .clone();
+    }
     let category = guild_id
         .create_channel(&ctx, |c| c.name(&ctf).kind(ChannelType::Category))
         .await?;
@@ -71,7 +83,9 @@ pub async fn new(
         deny: Permissions::empty(),
         kind: PermissionOverwriteType::Role(role.id),
     };
-    general.create_permission(&ctx, &everyone_permission).await?;
+    general
+        .create_permission(&ctx, &everyone_permission)
+        .await?;
     general.create_permission(&ctx, &role_permission).await?;
     general_public
         .id
