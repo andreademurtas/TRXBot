@@ -7,7 +7,9 @@ use poise::serenity_prelude as serenity;
 use serenity::model::channel::{PermissionOverwrite, PermissionOverwriteType};
 use serenity::model::prelude::RoleId;
 use serenity::model::Permissions;
-use std::{collections::HashMap, env, sync::Mutex, time::Duration};
+use serenity::model::prelude::Channel;
+use serenity::ArgumentConvert;
+use std::{env, time::Duration};
 
 use crate::commands::botmaster::*;
 use crate::commands::ctftime::*;
@@ -62,10 +64,17 @@ async fn main() {
                     poise::Event::ChannelCreate { channel } => {
                         let roles = channel.guild_id.roles(&ctx).await.unwrap();
                         let category = channel.parent_id.unwrap();
+                        let category_name = Channel::convert(
+                                ctx,
+                                Some(channel.guild_id),
+                                Some(category),
+                                &category.0.to_string()
+                            )
+                            .await?;
                         println!("category: {:?}", category);
-                        println!("channel: {:?}", category.name(&ctx).await);
+                        println!("channel: {:?}", category_name);
                         for (_id, role) in roles {
-                            if role.name == category.name(&ctx).await.unwrap() {
+                            if role.name == "test" {
                                 let everyone_permission = PermissionOverwrite {
                                     allow: Permissions::empty(),
                                     deny: Permissions::all(),
