@@ -1,11 +1,14 @@
-use crate::{Context, Error};
 use poise::serenity_prelude as serenity;
+use rusqlite::{Connection, Result as SqliteResult};
 use serenity::model::application::component::ButtonStyle;
 use serenity::model::channel::ChannelType;
 use serenity::model::channel::{PermissionOverwrite, PermissionOverwriteType};
 use serenity::model::prelude::RoleId;
 use serenity::model::Permissions;
 use serenity::utils::Colour;
+
+use crate::db::ctf::Ctf;
+use crate::{Context, Error};
 
 async fn check_botmaster(ctx: Context<'_>) -> Result<bool, Error> {
     let guild_id = ctx.guild_id().unwrap();
@@ -35,6 +38,8 @@ pub async fn new(
     #[description = "The name of the CTF"] ctf: String,
 ) -> Result<(), Error> {
     ctx.send(|b| b.content("ok").ephemeral(true)).await?;
+    let conn = Connection::open_in_memory()?;
+    Ctf::new(&ctf).add_to_db(&conn)?;
     let guild_id = ctx.guild_id().unwrap();
     let rgb = Colour::from_rgb(
         rand::random::<u8>(),

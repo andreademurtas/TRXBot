@@ -1,22 +1,19 @@
+use rusqlite::{Connection, Result};
+
 pub struct Ctf {
     pub name: String,
-    pub challenges: HashMap<String, bool>,
-    pub participants: Vec<String>
 }
 
 impl Ctf {
-    pub fn new(name: String) -> Ctf {
+    pub fn new(name: &String) -> Ctf {
         Ctf {
-            name: name,
-            challenges: HashMap::new()
+            name: name.to_string(),
         }
     }
 
-    pub fn add_challenge(&mut self, name: String, solved: bool) {
-        self.challenges.insert(name, solved);
-    }
-
-    pub fn add_participant(&mut self, name: String) {
-        self.participants.push(name);
+    pub fn add_to_db(&self, conn: &Connection) -> Result<()> {
+        let mut stmt = conn.prepare("INSERT INTO ctfs (name) VALUES (?)")?;
+        stmt.execute(&[&self.name])?;
+        Ok(())
     }
 }

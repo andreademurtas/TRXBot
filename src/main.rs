@@ -1,9 +1,11 @@
 #![warn(clippy::str_to_string)]
 
 mod commands;
+mod db;
 
 use dotenv::dotenv;
 use poise::serenity_prelude as serenity;
+use rusqlite::{Connection, Result as SqliteResult};
 use serenity::model::channel::{PermissionOverwrite, PermissionOverwriteType};
 use serenity::model::prelude::Channel;
 use serenity::model::prelude::RoleId;
@@ -17,6 +19,8 @@ use crate::commands::factordb::*;
 use crate::commands::gg::*;
 use crate::commands::help::*;
 use crate::commands::tle::*;
+use crate::db::challenge::Challenge;
+use crate::db::db::*;
 
 type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::Context<'a, Data, Error>;
@@ -41,6 +45,7 @@ async fn on_error(error: poise::FrameworkError<'_, Data, Error>) {
 async fn main() {
     env_logger::init();
     dotenv().ok();
+    let _ = setup_db();
 
     let options = poise::FrameworkOptions {
         commands: vec![
@@ -75,7 +80,10 @@ async fn main() {
                         .unwrap();
                         let category_name = category_ca.name;
                         for (_id, role) in roles {
-                            if role.name == category_name && channel.name != "general-public"{
+                            if role.name == category_name && channel.name != "general-public" {
+                                let conn = Connection::open_in_memory()?;
+                                let challenge = Challenge::new(&channel.name, &category_name);
+                                challenge.add_to_db(&conn)?;
                                 let everyone_permission = PermissionOverwrite {
                                     allow: Permissions::empty(),
                                     deny: Permissions::all(),
