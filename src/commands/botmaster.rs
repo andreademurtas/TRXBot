@@ -11,7 +11,7 @@ async fn check_botmaster(ctx: Context<'_>) -> Result<bool, Error> {
     let guild_id = ctx.guild_id().unwrap();
     let roles = guild_id.roles(&ctx).await?;
     for (id, role) in roles {
-        if role.name == "Bot master" {
+        if role.name == "Bot master" || role.name == "ring0" {
             return Ok(ctx.author().has_role(&ctx, guild_id, id).await?);
         }
     }
@@ -105,8 +105,10 @@ pub async fn new(
     while let Some(interaction) = serenity::CollectComponentInteraction::new(ctx).await {
         let member = interaction.member.as_ref().unwrap();
         let mut roles = member.roles.clone();
-        roles.push(role.id);
-        member.edit(&ctx, |m| m.roles(roles)).await?;
+        if !roles.contains(&role.id) {
+            roles.push(role.id);
+            member.edit(&ctx, |m| m.roles(roles)).await?;
+        }
         interaction
             .create_interaction_response(ctx, |r| {
                 r.kind(serenity::InteractionResponseType::DeferredUpdateMessage)
