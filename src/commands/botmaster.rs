@@ -136,7 +136,7 @@ pub async fn reload(ctx: Context<'_>) -> Result<(), Error> {
         }
     }
     let message_result = general_public
-        .messages(&ctx, |m| m.limit(1))
+        .messages(&ctx, |m| m.limit(100000))
         .await?;
     println!("{:?}", message_result);
     let message = message_result
