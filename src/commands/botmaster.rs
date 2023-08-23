@@ -6,7 +6,6 @@ use serenity::model::channel::{PermissionOverwrite, PermissionOverwriteType};
 use serenity::model::prelude::RoleId;
 use serenity::model::Permissions;
 use serenity::utils::Colour;
-use serenity::model::prelude::prelude::component::ActionRow;
 
 async fn check_botmaster(ctx: Context<'_>) -> Result<bool, Error> {
     let guild_id = ctx.guild_id().unwrap();
@@ -139,6 +138,7 @@ pub async fn reload(ctx: Context<'_>) -> Result<(), Error> {
     let message_result = general_public
         .messages(&ctx, |m| m.limit(1))
         .await?;
+    println!("{:?}", message_result);
     let message = message_result
         .iter()
         .find(|m| m.content.contains("Click the button to play"))
@@ -146,7 +146,7 @@ pub async fn reload(ctx: Context<'_>) -> Result<(), Error> {
     let mut words = message.content.split_whitespace();
     let ctf = words.next_back().unwrap();
     let roles = guild_id.roles(&ctx).await?;
-        let role;
+    let role;
         if !roles.iter().any(|(_, role)| role.name == ctf) {
             ctx.send(|b| b.content("Ctf doesn't exist").ephemeral(true)).await?;
             return Ok(())
