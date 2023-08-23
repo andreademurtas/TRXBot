@@ -121,8 +121,6 @@ pub async fn new(
 
 #[poise::command(track_edits, slash_command, hide_in_help, check = "check_botmaster")]
 pub async fn reload(ctx: Context<'_>) -> Result<(), Error> {
-    // take first message in current channel, edit it to recreate the button in it to make it work
-    // again
     let guild_id = ctx.guild_id().unwrap(); 
     let general_public = ctx
         .channel_id();
@@ -142,9 +140,9 @@ pub async fn reload(ctx: Context<'_>) -> Result<(), Error> {
         .messages(&ctx, |m| m.limit(1))
         .await?;
     let message = message_result
-        .first()
+        .iter()
+        .find(|m| m.content.contains("Click the button to play"))
         .unwrap();
-    //extract last word in message, not in button
     let mut words = message.content.split_whitespace();
     let ctf = words.next_back().unwrap();
     let roles = guild_id.roles(&ctx).await?;
@@ -160,7 +158,6 @@ pub async fn reload(ctx: Context<'_>) -> Result<(), Error> {
                 .1
                 .clone();
         }
-    //delete the message, resend it in current channel
     message.delete(&ctx).await?;
     general_public
         .send_message(&ctx, |m| {
