@@ -12,6 +12,7 @@ use serenity::ArgumentConvert;
 use std::{env, time::Duration};
 
 use crate::commands::botmaster::*;
+use crate::commands::ctf::*;
 use crate::commands::ctftime::*;
 use crate::commands::factordb::*;
 use crate::commands::gg::*;
@@ -51,7 +52,7 @@ async fn main() {
             ctftime(),
             factordb(),
             moonlighter(),
-            list_participants()
+            list_participants(),
         ],
         prefix_options: poise::PrefixFrameworkOptions {
             prefix: Some("!".into()),
@@ -76,7 +77,7 @@ async fn main() {
                         .unwrap();
                         let category_name = category_ca.name;
                         for (_id, role) in roles {
-                            if role.name == category_name && channel.name != "general-public"{
+                            if role.name == category_name && channel.name != "general-public" {
                                 let everyone_permission = PermissionOverwrite {
                                     allow: Permissions::empty(),
                                     deny: Permissions::all(),
