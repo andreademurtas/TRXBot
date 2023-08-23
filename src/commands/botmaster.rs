@@ -6,6 +6,7 @@ use serenity::model::channel::{PermissionOverwrite, PermissionOverwriteType};
 use serenity::model::prelude::RoleId;
 use serenity::model::Permissions;
 use serenity::utils::Colour;
+use serenity::model::prelude::prelude::component::ActionRow;
 
 async fn check_botmaster(ctx: Context<'_>) -> Result<bool, Error> {
     let guild_id = ctx.guild_id().unwrap();
@@ -89,6 +90,79 @@ pub async fn new(
     category.create_permission(&ctx, &role_permission).await?;
     general_public
         .id
+        .send_message(&ctx, |m| {
+            m.content(format!("Click the button to play {}", ctf))
+                .components(|c| {
+                    c.create_action_row(|r| {
+                        r.create_button(|b| {
+                            b.style(ButtonStyle::Primary)
+                                .label("Play")
+                                .custom_id(String::from("play_") + &ctf)
+                        })
+                    })
+                })
+        })
+        .await?;
+    while let Some(interaction) = serenity::CollectComponentInteraction::new(ctx).await {
+        let member = interaction.member.as_ref().unwrap();
+        let mut roles = member.roles.clone();
+        if !roles.contains(&role.id) {
+            roles.push(role.id);
+            member.edit(&ctx, |m| m.roles(roles)).await?;
+        }
+        interaction
+            .create_interaction_response(ctx, |r| {
+                r.kind(serenity::InteractionResponseType::DeferredUpdateMessage)
+            })
+            .await?;
+    }
+    Ok(())
+}
+
+#[poise::command(track_edits, slash_command, hide_in_help, check = "check_botmaster")]
+pub async fn reload(ctx: Context<'_>) -> Result<(), Error> {
+    // take first message in current channel, edit it to recreate the button in it to make it work
+    // again
+    let guild_id = ctx.guild_id().unwrap(); 
+    let general_public = ctx
+        .channel_id();
+    match general_public.name(&ctx).await {
+        Some(name) => {
+            if name != "general-public" {
+                ctx.send(|b| b.content("This command must be run in the general-public channel").ephemeral(true)).await?;
+                return Ok(())
+            }
+        }
+        None => {
+            ctx.send(|b| b.content("This command must be run in the general-public channel").ephemeral(true)).await?;
+            return Ok(())
+        }
+    }
+    let message_result = general_public
+        .messages(&ctx, |m| m.limit(1))
+        .await?;
+    let message = message_result
+        .first()
+        .unwrap();
+    //extract last word in message, not in button
+    let mut words = message.content.split_whitespace();
+    let ctf = words.next_back().unwrap();
+    let roles = guild_id.roles(&ctx).await?;
+        let role;
+        if !roles.iter().any(|(_, role)| role.name == ctf) {
+            ctx.send(|b| b.content("Ctf doesn't exist").ephemeral(true)).await?;
+            return Ok(())
+        } else {
+            role = roles
+                .iter()
+                .find(|(_, role)| role.name == ctf)
+                .unwrap()
+                .1
+                .clone();
+        }
+    //delete the message, resend it in current channel
+    message.delete(&ctx).await?;
+    general_public
         .send_message(&ctx, |m| {
             m.content(format!("Click the button to play {}", ctf))
                 .components(|c| {
