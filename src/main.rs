@@ -53,6 +53,7 @@ async fn main() {
             factordb(),
             moonlighter(),
             list_participants(),
+            reload()
         ],
         prefix_options: poise::PrefixFrameworkOptions {
             prefix: Some("!".into()),
