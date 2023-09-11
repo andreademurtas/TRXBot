@@ -199,7 +199,7 @@ pub async fn discord_telegram_message(ctx: Context<'_>, msg: String) -> Result<(
     let bot = Bot::from_env();
     let chat_id = std::env::var("TELEGRAM_CHAT_ID").unwrap();
     let disclaimer = "`(This message was sent from Discord)`";
-    bot.send_message(chat_id, format!("{}\n{}", msg, disclaimer)).await?;
+    bot.send_message(chat_id, format!("{}\n{}", disclaimer, msg)).await?;
     bot.close().await?;
     Ok(())
 }
