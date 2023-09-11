@@ -6,6 +6,7 @@ use serenity::model::channel::{PermissionOverwrite, PermissionOverwriteType};
 use serenity::model::prelude::RoleId;
 use serenity::model::Permissions;
 use serenity::utils::Colour;
+use teloxide::prelude::*;
 
 async fn check_botmaster(ctx: Context<'_>) -> Result<bool, Error> {
     let guild_id = ctx.guild_id().unwrap();
@@ -186,5 +187,19 @@ pub async fn reload(ctx: Context<'_>) -> Result<(), Error> {
             })
             .await?;
     }
+    Ok(())
+}
+
+#[poise::command(track_edits, slash_command, hide_in_help, check = "check_botmaster")]
+pub async fn discord_telegram_message(ctx: Context<'_>, msg: String) -> Result<(), Error> {
+    ctx.send(|c| {
+        c.content(msg.clone())
+    })
+        .await?;
+    let bot = Bot::from_env();
+    let chat_id = std::env::var("TELEGRAM_CHAT_ID").unwrap();
+    let disclaimer = "`(This message was sent from Discord)`";
+    bot.send_message(chat_id, format!("{}\n{}", msg, disclaimer)).await?;
+    bot.close().await?;
     Ok(())
 }

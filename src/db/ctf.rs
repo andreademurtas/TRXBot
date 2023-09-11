@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct Ctf {
     pub name: String,
     pub challenges: HashMap<String, bool>
