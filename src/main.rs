@@ -53,7 +53,8 @@ async fn main() {
             factordb(),
             moonlighter(),
             list_participants(),
-            reload()
+            reload(),
+            discord_telegram_message()
         ],
         prefix_options: poise::PrefixFrameworkOptions {
             prefix: Some("!".into()),
