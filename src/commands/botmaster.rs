@@ -7,6 +7,7 @@ use serenity::model::prelude::RoleId;
 use serenity::model::Permissions;
 use serenity::utils::Colour;
 use teloxide::prelude::*;
+use teloxide::utils::markdown::bold;
 
 async fn check_botmaster(ctx: Context<'_>) -> Result<bool, Error> {
     let guild_id = ctx.guild_id().unwrap();
@@ -198,7 +199,8 @@ pub async fn discord_telegram_message(ctx: Context<'_>, msg: String) -> Result<(
         .await?;
     let bot = Bot::from_env();
     let chat_id = std::env::var("TELEGRAM_CHAT_ID").unwrap();
-    let disclaimer = "```(This message was sent from Discord)```";
+    let disclaimer = "(This message was sent from Discord)";
+    let disclaimer = bold(disclaimer);
     bot.send_message(chat_id, format!("{}\n{}", disclaimer, msg)).await?;
     bot.close().await?;
     Ok(())
