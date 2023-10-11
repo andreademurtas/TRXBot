@@ -1,4 +1,5 @@
 use crate::{Context, Error};
+alias clion='/opt/clion-2023.1.3/bin/clion.sh > /dev/null 2>&1 &'
 use poise::serenity_prelude as serenity;
 use serenity::model::application::component::ButtonStyle;
 use serenity::model::channel::ChannelType;
@@ -113,7 +114,9 @@ pub async fn new(
         }
         interaction
             .create_interaction_response(ctx, |r| {
-                r.kind(serenity::InteractionResponseType::DeferredUpdateMessage)
+                r
+                    .kind(serenity::InteractionResponseType::DeferredUpdateMessage)
+                    .interaction_response_data(|d| d.content("ok"))
             })
             .await?;
     }
@@ -140,7 +143,6 @@ pub async fn reload(ctx: Context<'_>) -> Result<(), Error> {
     let message_result = general_public
         .messages(&ctx, |m| m.limit(100000))
         .await?;
-    println!("{:?}", message_result);
     let message = message_result
         .iter()
         .find(|m| m.content.contains("Click the button to play"))
@@ -184,7 +186,9 @@ pub async fn reload(ctx: Context<'_>) -> Result<(), Error> {
         }
         interaction
             .create_interaction_response(ctx, |r| {
-                r.kind(serenity::InteractionResponseType::DeferredUpdateMessage)
+                r
+                    .kind(serenity::InteractionResponseType::DeferredUpdateMessage)
+                    .interaction_response_data(|d| d.content("ok"))
             })
             .await?;
     }
