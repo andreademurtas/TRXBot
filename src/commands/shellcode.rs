@@ -25,5 +25,6 @@ pub async fn shellcode(ctx: Context<'_>, keywords: Vec<String>, max_results: Opt
     for (i, (author, platform, title, id, url)) in results.iter().enumerate() {
         msg.push_str(&format!("{}: {} - {} - {} - {} - {}\n", i + 1, author, platform, title, id, url));
     }
+    ctx.send(|m| m.content(msg).reply(true)).await?;
     Ok(())
 }
