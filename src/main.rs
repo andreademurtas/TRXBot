@@ -18,6 +18,7 @@ use crate::commands::factordb::*;
 use crate::commands::gg::*;
 use crate::commands::help::*;
 use crate::commands::tle::*;
+use crate::commands::shellcode::*;
 
 type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::Context<'a, Data, Error>;
@@ -54,7 +55,8 @@ async fn main() {
             moonlighter(),
             list_participants(),
             reload(),
-            discord_telegram_message()
+            discord_telegram_message(),
+            shellcode()
         ],
         prefix_options: poise::PrefixFrameworkOptions {
             prefix: Some("!".into()),
