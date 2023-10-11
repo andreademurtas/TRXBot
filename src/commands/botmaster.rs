@@ -1,5 +1,4 @@
 use crate::{Context, Error};
-alias clion='/opt/clion-2023.1.3/bin/clion.sh > /dev/null 2>&1 &'
 use poise::serenity_prelude as serenity;
 use serenity::model::application::component::ButtonStyle;
 use serenity::model::channel::ChannelType;
