@@ -13,6 +13,7 @@ async fn check_botmaster(ctx: Context<'_>) -> Result<bool, Error> {
     let guild_id = ctx.guild_id().unwrap();
     let roles = guild_id.roles(&ctx).await?;
     for (id, role) in roles {
+        println!("{}", role.name);
         if role.name == "Bot master" || role.name == "ring0" {
             return Ok(ctx.author().has_role(&ctx, guild_id, id).await?);
         }
@@ -150,17 +151,17 @@ pub async fn reload(ctx: Context<'_>) -> Result<(), Error> {
     let ctf = words.next_back().unwrap();
     let roles = guild_id.roles(&ctx).await?;
     let role;
-        if !roles.iter().any(|(_, role)| role.name == ctf) {
-            ctx.send(|b| b.content("Ctf doesn't exist").ephemeral(true)).await?;
-            return Ok(())
-        } else {
-            role = roles
-                .iter()
-                .find(|(_, role)| role.name == ctf)
-                .unwrap()
-                .1
-                .clone();
-        }
+    if !roles.iter().any(|(_, role)| role.name == ctf) {
+        ctx.send(|b| b.content("Ctf doesn't exist").ephemeral(true)).await?;
+        return Ok(())
+    } else {
+        role = roles
+            .iter()
+            .find(|(_, role)| role.name == ctf)
+            .unwrap()
+            .1
+            .clone();
+    }
     message.delete(&ctx).await?;
     general_public
         .send_message(&ctx, |m| {

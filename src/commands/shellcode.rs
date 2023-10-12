@@ -1,14 +1,18 @@
 use crate::{Context, Error};
+use poise::serenity_prelude as serenity;
 
 #[poise::command(track_edits, slash_command)]
-pub async fn shellcode(ctx: Context<'_>, keywords: Vec<String>, max_results: Option<u32>) -> Result<(), Error> {
+pub async fn shellcode(ctx: Context<'_>, 
+    syscall: String, #[description = "x86, arm etc"] arch: String, max_results: Option<u32>) -> Result<(), Error> {
     if max_results > Some(10) {
         ctx.say("Max results is 10").await?;
         return Ok(());
     }
     let mut msg = String::new();
     msg.push_str("http://shell-storm.org/api/?s=");
-    msg.push_str(&keywords.join("*"));
+    msg.push_str(&syscall);
+    msg.push_str("*");
+    msg.push_str(&arch);
     let resp = reqwest::get(&msg).await?.text().await?;
     let lines = resp.lines();
     let mut results = Vec::new();
