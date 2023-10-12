@@ -6,3 +6,4 @@ pub mod factordb;
 pub mod gg;
 pub mod help;
 pub mod tle;
+pub mod gimmerole;
