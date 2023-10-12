@@ -3,6 +3,10 @@ use crate::{Context, Error};
 #[poise::command(track_edits, slash_command)]
 pub async fn gimmerole(ctx: Context<'_>, role_a: String) -> Result<(), Error> {
     let guild_id = ctx.guild_id().unwrap(); 
+    if !role_a.to_lowercase().contains("ctf") {
+        ctx.send(|m| m.content("Nope").ephemeral(true)).await?;
+        return Ok(());
+    }
     if role_a == "ring0" || role_a == "Bot master" || role_a == "Channel master" {
         ctx.send(|m| m.content("Nope").ephemeral(true)).await?;
         return Ok(());
